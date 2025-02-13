@@ -1,23 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_putendl_fd.c                                    :+:      :+:    :+:   */
+/*   test.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: antbonin <antbonin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/13 17:33:25 by antbonin          #+#    #+#             */
-/*   Updated: 2025/02/13 18:12:44 by antbonin         ###   ########.fr       */
+/*   Created: 2025/02/13 18:45:37 by antbonin          #+#    #+#             */
+/*   Updated: 2025/02/13 18:48:04 by antbonin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "./../ressource/libft.h"
+#include "minitalk.h"
+#include "../libft/ressource/libft.h"
 
-void	ft_putendl_fd(char *s, int fd)
+void ft_test(char *str)
 {
-	while (*s)
-	{
-		ft_putchar_fd(*s, fd);
-		s++;
-	}
-	ft_putchar_fd('\n', fd);
+    while(*str)
+    {
+        ft_putchar_fd(*str, 1);
+        str++;
+    }
 }
