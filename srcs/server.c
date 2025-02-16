@@ -6,35 +6,42 @@
 /*   By: antbonin <antbonin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 17:12:01 by antbonin          #+#    #+#             */
-/*   Updated: 2025/02/13 18:49:29 by antbonin         ###   ########.fr       */
+/*   Updated: 2025/02/16 18:51:50 by antbonin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "unistd.h"
-#include "sys/types.h"
-#include "stdio.h"
-#include "stdlib.h"
-#include "../libft/ressource/libft.h"
 #include "minitalk.h"
-#include <signal.h>
 
-void signal_callback_handler(int signum)
+void signal_handler(int signum)
 {
-   printf("Caught signal %d\n",signum); 
+   static char c = 0;
+   static int bit = 0;
+
+   if (signum == SIGUSR1)
+      c |= (1 << bit);
+   else if (signum == SIGUSR2)
+      c &= ~(1 << bit);
+
+   bit++;
+   if (bit == 8)
+   {
+      if (c == '\0')
+         write(1, "\n", 1);
+      else
+         write(1, &c, 1);
+      c = 0;
+      bit = 0;
+   }
 }
 
 int main()
 {
-    pid_t pid = getpid();
-   signal(SIGUSR1, signal_callback_handler);
-   signal(SIGUSR2, signal_callback_handler);
-   if (pid)
-   ft_test("abcdef");
-   ft_printf("\npid : %u\n", pid);
-   while(1)
+   ft_printf("PID : %d\n", getpid());
+   while (1)
    {
-      ft_printf("\n");
-      sleep(10);
+      signal(SIGUSR1, signal_handler);
+      signal(SIGUSR2, signal_handler);
+      pause();
    }
    return EXIT_SUCCESS;
 }

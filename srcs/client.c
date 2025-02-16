@@ -17,14 +17,50 @@
 #include "../libft/ressource/libft.h"
 #include "minitalk.h"
 
-int	main(int ac, char **av)
+void send_char(char c, pid_t pid)
 {
-    if (ac == 3)
+    for (int bit = 0; bit < 8; bit++)
     {
-        int error = 0;
-        int i = ft_atoi(av[1], &error);
-        ft_printf("%d\n", i);
-        return (0);
+        if (c & (1 << bit))
+        {
+            if (kill(pid, SIGUSR1) < 0)
+            {
+                perror("Kill error");
+                exit(EXIT_FAILURE);
+            }
+        }
+        else
+        {
+        if (kill(pid, SIGUSR2) < 0)
+            {
+                perror("Kill error");
+                exit(EXIT_FAILURE);
+            }
+        }
+        usleep(400);
     }
-    return (1);
+}
+
+int main(int ac, char **av)
+{
+    if (ac != 3)
+    {
+        ft_putendl_fd("Error", 2);
+        return (EXIT_FAILURE);
+    }
+    pid_t pid;
+    char *message;
+    int error = 0;
+
+    pid = ft_atoi(av[1], &error);
+    if (error == -1)
+    {
+        ft_putendl_fd("Error", 2);
+        return (EXIT_FAILURE);
+    }
+    message = av[2];
+    while (*message)
+        send_char(*message++, pid);
+    send_char('\0', pid);
+    return (EXIT_SUCCESS);
 }

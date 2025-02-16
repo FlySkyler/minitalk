@@ -1,7 +1,7 @@
 .PHONY: all clean fclean re
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -I./includes
 
 LIBFT_DIR = libft/
 LIBFT = $(LIBFT_DIR)libft.a
@@ -11,11 +11,9 @@ OBJ_DIR = obj/
 NAME = minitalk
 SERVER = $(SRC_DIR)server.c
 CLIENT = $(SRC_DIR)client.c
-SRC = $(addprefix $(SRC_DIR), \
-		test.c)
 
-SERVER_OBJ = $(SERVER:$(SRC_DIR)%.c=$(OBJ_DIR)%.o) $(SRC:$(SRC_DIR)%.c=$(OBJ_DIR)%.o)
-CLIENT_OBJ = $(CLIENT:$(SRC_DIR)%.c=$(OBJ_DIR)%.o) $(SRC:$(SRC_DIR)%.c=$(OBJ_DIR)%.o)
+SERVER_OBJ = $(SERVER:$(SRC_DIR)%.c=$(OBJ_DIR)%.o)
+CLIENT_OBJ = $(CLIENT:$(SRC_DIR)%.c=$(OBJ_DIR)%.o)
 
 all: $(NAME)
 
