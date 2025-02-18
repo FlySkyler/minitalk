@@ -40,7 +40,7 @@ void	send_char(char c, pid_t pid)
 				exit(EXIT_FAILURE);
 			}
 		}
-		usleep(400);
+		usleep(1000);
 		bit++;
 	}
 }
