@@ -6,102 +6,80 @@
 /*   By: antbonin <antbonin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 17:12:01 by antbonin          #+#    #+#             */
-/*   Updated: 2025/02/18 18:42:59 by antbonin         ###   ########.fr       */
+/*   Updated: 2025/02/19 16:33:40 by antbonin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../libft/ressource/libft.h"
 #include "minitalk.h"
+#include <stdlib.h>
 
-void	*ft_realloc(void *ptr, size_t size)
+void	add_message(t_message *message, char c)
 {
-	void	*new_ptr;
+	char	*str;
 
-	if (size == 0)
-	{
-		free(ptr);
-		return (NULL);
-	}
-	new_ptr = malloc(size);
-	if (!new_ptr)
-	{
-		perror("malloc");
-		exit(EXIT_FAILURE);
-	}
-	if (ptr)
-	{
-		ft_memcpy(new_ptr, ptr, size);
-		free(ptr);
-	}
-	return (new_ptr);
+	str = malloc(2);
+	if (!str)
+		return ;
+	str[0] = c;
+	str[1] = '\0';
+	ft_lstadd_back(&message->list, ft_lstnew(str));
 }
 
-void	process_char(char c, char **str, size_t *len)
+void	clear_and_print_message(t_message *message)
 {
-	char	*new_str;
+	t_list	*current;
 
-	if (c == '\0')
+	current = message->list;
+	while (current)
 	{
-		if (*str)
-		{
-			printf("%s\n", *str);
-			free(*str);
-			*str = NULL;
-			*len = 0;
-		}
+		ft_printf("%s", (char *)current->content);
+		current = current->next;
 	}
-	else
-	{
-		new_str = ft_realloc(*str, *len + 2);
-		if (!new_str)
-		{
-			perror("ft_realloc");
-			exit(EXIT_FAILURE);
-		}
-		*str = new_str;
-		(*str)[*len] = c;
-		(*str)[*len + 1] = '\0';
-		(*len)++;
-	}
+	ft_printf("\n");
+	ft_lstclear(&message->list, free);
+	message->list = NULL;
 }
 
-void	signal_handler(int signum)
+void	handle_signal(int signal, siginfo_t *info, void *context)
 {
-	static char		c = 0;
-	static int		bit = 0;
-	static char		*str = NULL;
-	static size_t	len = 0;
+	static t_message	message = {NULL, 0, 0};
 
-	if (signum == SIGUSR1)
-		c |= (1 << bit);
-	else if (signum == SIGUSR2)
-		c &= ~(1 << bit);
-	bit++;
-	if (bit == 8)
+	(void)context;
+	if (signal == SIGUSR1)
+		message.char_c |= (0x01 << message.bit);
+	message.bit++;
+	if (message.bit == 8)
 	{
-		process_char(c, &str, &len);
-		c = 0;
-		bit = 0;
+		if (message.char_c == '\0')
+			clear_and_print_message(&message);
+		else
+			add_message(&message, message.char_c);
+		message.char_c = 0;
+		message.bit = 0;
 	}
+	kill(info->si_pid, SIGUSR1);
 }
 
-int	main(void)
+int	main(int argc, char **argv)
 {
-	struct sigaction	sa;
+	struct sigaction	act;
+	pid_t				pid;
 
-	sa.sa_handler = signal_handler;
-	sa.sa_flags = SA_RESTART;
-	sigemptyset(&sa.sa_mask);
-	if (sigaction(SIGUSR1, &sa, NULL) == -1 || sigaction(SIGUSR2, &sa, NULL) ==
-		-1)
+	(void)argv;
+	act.sa_sigaction = handle_signal;
+	sigemptyset(&act.sa_mask);
+	act.sa_flags = SA_SIGINFO;
+	sigaction(SIGUSR1, &act, NULL);
+	sigaction(SIGUSR2, &act, NULL);
+	if (argc != 1)
 	{
-		perror("sigaction");
-		exit(EXIT_FAILURE);
+		ft_printf("Error");
+		return (1);
 	}
-	printf("PID : %d\n", getpid());
+	pid = getpid();
+	ft_printf("PID : %d\n", pid);
 	while (1)
-	{
 		pause();
-	}
-	return (EXIT_SUCCESS);
+	return (0);
 }

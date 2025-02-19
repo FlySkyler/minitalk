@@ -15,57 +15,48 @@
 
 #include "../libft/ressource/libft.h"
 #include "minitalk.h"
-#include "unistd.h"
 
-void	send_char(char c, pid_t pid)
+void	handle_ack(int signal)
 {
-	int	bit;
+	(void)signal;
+	g_ack = 0;
+}
 
-	bit = 0;
-	while (bit < 8)
+void	send_char(pid_t pid, unsigned char c)
+{
+	int	i;
+
+	i = 0;
+	while (i < 8)
 	{
-		if (c & (1 << bit))
-		{
-			if (kill(pid, SIGUSR1) < 0)
-			{
-				perror("Kill error");
-				exit(EXIT_FAILURE);
-			}
-		}
+		if (c & 1 << i)
+			kill(pid, SIGUSR1);
 		else
-		{
-			if (kill(pid, SIGUSR2) < 0)
-			{
-				perror("Kill error");
-				exit(EXIT_FAILURE);
-			}
-		}
-		usleep(1000);
-		bit++;
+			kill(pid, SIGUSR2);
+		while (g_ack)
+			pause();
+		g_ack = 1;
+		i++;
 	}
 }
 
-int	main(int ac, char **av)
+int	main(int argc, char **argv)
 {
-	pid_t	pid;
-	char	*message;
-	int		error;
+	struct sigaction	act;
+	int					i;
 
-	if (ac != 3)
+	i = 0;
+	act.sa_handler = handle_ack;
+	sigemptyset(&act.sa_mask);
+	act.sa_flags = SA_RESTART;
+	sigaction(SIGUSR1, &act, NULL);
+	if (argc != 3 || ft_atoi(argv[1]) <= 0)
 	{
-		ft_putendl_fd("Error", 2);
-		return (EXIT_FAILURE);
+		ft_printf("Error");
+		return (1);
 	}
-	error = 0;
-	pid = ft_atoi(av[1], &error);
-	if (error == -1)
-	{
-		ft_putendl_fd("Error", 2);
-		return (EXIT_FAILURE);
-	}
-	message = av[2];
-	while (*message)
-		send_char(*message++, pid);
-	send_char('\0', pid);
-	return (EXIT_SUCCESS);
+	while (argv[2][i])
+		send_char(ft_atoi(argv[1]), argv[2][i++]);
+	send_char(ft_atoi(argv[1]), '\0');
+	return (0);
 }

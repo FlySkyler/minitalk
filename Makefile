@@ -20,10 +20,10 @@ all: $(NAME)
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
-$(OBJ_DIR)%.o: $(SRC_DIR)%.c | $(OBJ_DIR)
+$(OBJ_DIR)%.o: $(SRC_DIR)%.c $(SRC_DIR)minitalk.h | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(NAME): client server
+$(NAME): client server 
 
 $(LIBFT): $(LIBFT_DIR)ressource/libft.h $(LIBFT_DIR)libft/*c
 	$(MAKE) -C $(LIBFT_DIR) --no-print-directory

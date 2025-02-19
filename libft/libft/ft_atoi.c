@@ -6,14 +6,14 @@
 /*   By: antbonin <antbonin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 12:40:20 by antbonin          #+#    #+#             */
-/*   Updated: 2025/02/16 18:34:46 by antbonin         ###   ########.fr       */
+/*   Updated: 2025/02/19 11:27:17 by antbonin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./../ressource/libft.h"
 #include <limits.h>
 
-int	ft_atoi(const char *str, int *error)
+int	ft_atoi(const char *str)
 {
 	int		neg;
 	long	number;
@@ -32,7 +32,7 @@ int	ft_atoi(const char *str, int *error)
 		if ((neg == 1 && (number > (INT_MAX - (*str - 48)) / 10)) || (neg == -1
 				&& (number > (2147483648 - (*str - 48)) / 10)))
 		{
-			*error = -1;
+			return (-1);
 		}
 		number = number * 10 + (*str - 48);
 		str++;
